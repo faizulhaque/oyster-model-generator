@@ -1,0 +1,33 @@
+'use strict';
+
+var model = require('./mysql').extend({
+    tableName: '<%= model.tableName %>'
+});
+
+model.prototype.getClientWithTableReference = function getClientWithTableReference(){
+    return require('./mysql').client(this.tableName);
+};
+
+model.prototype.getClient = function getClient(){
+    return require('./mysql').client;
+};
+
+// overriding base method
+model.prototype.getDBObject = function getDBObject(object) {
+
+    var obj = {};
+
+    <% model.columns.forEach(function(column){ %>
+    obj.<%= column  %> = object.<%= column %>;
+    <% }); %>
+
+    return obj;
+
+};
+
+// overriding base method
+model.prototype.getObjectFromDBObject = function getObjectFromDBObject(_Object) {
+    return _Object;
+};
+
+module.exports = model;
