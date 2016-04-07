@@ -1,0 +1,1 @@
+# oyster-model-generator
