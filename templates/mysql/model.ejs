@@ -1,33 +1,50 @@
 'use strict';
 
-var model = require('./mysql').extend({
-    tableName: '<%= model.tableName %>'
+let model = require('./mysql').extend({
+  tableName: '<%= model.tableName %>'
 });
 
-model.prototype.getClientWithTableReference = function getClientWithTableReference(){
-    return require('./mysql').client(this.tableName);
+model.prototype.getClientWithTableReference = function getClientWithTableReference() {
+  return require('./mysql').client(this.tableName);
 };
 
-model.prototype.getClient = function getClient(){
-    return require('./mysql').client;
+model.prototype.getClient = function getClient() {
+  return require('./mysql').client;
 };
 
 // overriding base method
 model.prototype.getDBObject = function getDBObject(object) {
 
-    var obj = {};
+  let obj = {};
+  <% model.columns.forEach(function(column){ _%>
+obj.<%= column  %> = object.<%= column %>;
+  <% }); _%>
+return obj;
 
-    <% model.columns.forEach(function(column){ %>
-    obj.<%= column  %> = object.<%= column %>;
-    <% }); %>
+};
 
-    return obj;
+model.prototype.preSave = function preSave(_Object) {
+  if (_Object.id) {
+    _Object.updatedAt = new Date();
+  } else {
+    _Object.createdAt = new Date();
+    _Object.updatedAt = new Date();
+  }
+  return _Object;
+};
 
+model.prototype.preUpdate = function preUpdate(_Object) {
+  _Object.updatedAt = new Date();
+  return _Object;
+};
+
+model.prototype.preDelete = function preDelete(_Object) {
+  return _Object;
 };
 
 // overriding base method
 model.prototype.getObjectFromDBObject = function getObjectFromDBObject(_Object) {
-    return _Object;
+  return _Object;
 };
 
 module.exports = model;
